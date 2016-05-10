@@ -38,11 +38,27 @@ The new downloader function will start as most 10 download sessions at once.
 
 	})();
 
+
+### Progress example
+
+You can also configure qthrottle to report it's current progress on processing promise queue.
+
+	var limit = 10;
+	var throttle = require('qthrottle')(
+	    limit,
+	    function(running, queued) {
+	        console.log('We are currently processing ' + running + ' promises out of ' + limit + ' possible concurrently. Queue length is ' + queued);
+	    }
+	);
+    
+
 ## API
 
-	var throttle = require('qthrottle')(limit)
+	var throttle = require('qthrottle')(limit, progressFunc)
 
 * limit - concurrency limit
+
+* progressFunc - called with two numeric arguments: function(running, queued)
 
 
 	var promise = throttle.fcall(func, thisArg, arg1, arg2, ...)

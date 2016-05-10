@@ -1,6 +1,6 @@
 var q = require('q');
 
-module.exports = function(limit) {
+module.exports = function(limit, progress) {
 
 	
 	function QThrottle(limit) {
@@ -45,6 +45,9 @@ module.exports = function(limit) {
 
 
 		var run = function() {
+			if (progress)
+				progress(running, queue.length);
+
 			if (running < limit && queue.length > 0) {
 				running++;
 				var job = queue.pop();
