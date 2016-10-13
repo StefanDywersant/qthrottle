@@ -50,7 +50,17 @@ You can also configure qthrottle to report it's current progress on processing p
 	        console.log('We are currently processing ' + running + ' promises out of ' + limit + ' possible concurrently. Queue length is ' + queued);
 	    }
 	);
+
     
+### Throttlize example
+
+	var limit = 10;
+	var throttle = require('qhtrottle')(limit);
+	
+	module.exports = throttle.throttlize({
+		downloadThis: downloadThis,
+		downloadThat: downloadThat
+	});
 
 ## API
 
@@ -83,9 +93,20 @@ You can also configure qthrottle to report it's current progress on processing p
 * args - arguments array for calling the function
 
 
+	var promise = throttle.throttlize(funcs, thisArg)
+
+Wraps array (or map) of functions with limits defined by `throttle` variable.
+
+* promise - an [Q](https://github.com/kriskowal/q) promise which is going to be resolved once promise returned by func resolves
+
+* funcs - array or map of functions which are going to be limited
+
+* thisArg - this object or null for calling the function
+
+
 ## Author
 
-Karol Maciaszek <karol.maciaszek@gmail.com>
+Karol Maciaszek <karol@maciaszek.pl>
 
 ## License
 
