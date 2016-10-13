@@ -44,22 +44,56 @@ module.exports = function(limit, progress) {
 		};
 
 
-		var run = function() {
-			if (progress)
-				progress(running, queue.length);
+		this.throttlize = function(fns, thisArg) {
+			var self = this;
 
+			var wrap = function(fn, thisArg) {
+				return function() {
+					return self.fapply(fn, thisArg, Array.prototype.slice.call(arguments));
+				};
+			};
+
+			if (Array.isArray(fns)) {
+				return fns.map(function(fn) {
+					return wrap(fn, thisArg);
+				});
+			}
+
+			if (typeof(fns) === 'object') {
+				Object.keys(fns)
+					.forEach(function(key) {
+						fns[key] = wrap(fns[key], thisArg);
+					});
+
+				return fns;
+			}
+
+			throw new Error('Invalid 1st argument type, expected array or object');
+		};
+
+
+		var run = function() {
 			if (running < limit && queue.length > 0) {
 				running++;
+
+				if (progress)
+					progress(running, queue.length);
+
 				var job = queue.pop();
-				job.fn.apply(job.thisArg, job.args).then(function(value) {
-					running--;
-					job.deferred.resolve(value);
-					run();
-				}).fail(function(error) {
-					running--;
-					job.deferred.reject(error);
-					run();
-				});
+				job.fn.apply(job.thisArg, job.args)
+					.then(function(value) {
+						running--;
+						job.deferred.resolve(value);
+						run();
+					})
+					.fail(function(error) {
+						running--;
+						job.deferred.reject(error);
+						run();
+					});
+			} else {
+				if (progress)
+					progress(running, queue.length);
 			}
 		};
 
